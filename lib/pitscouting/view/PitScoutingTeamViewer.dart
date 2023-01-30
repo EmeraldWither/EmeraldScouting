@@ -75,7 +75,7 @@ class _PitScoutingTeamViewerState extends State<PitScoutingTeamViewer> {
                             fontSize: 40, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(30),
                       child: _images[key]!,
                     )
                   ],

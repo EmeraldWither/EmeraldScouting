@@ -30,7 +30,5 @@ Future<void> main() async {
     '/scouting/pits/add': (context) => const PitScoutingAdd(),
     '/scouting/pits/view': (context) => const PitScoutingViewer(),
     '/scouting/pits/view/team': (context) => const PitScoutingTeamViewer(),
-
   }, home: const Home()));
-
 }

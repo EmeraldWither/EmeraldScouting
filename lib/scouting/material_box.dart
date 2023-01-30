@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 class MaterialBox extends StatelessWidget {
-  final Widget? child;
+  final Widget child;
   EdgeInsetsGeometry? padding;
-  MaterialBox({Key? key, this.child, this.padding}) : super(key: key);
+  bool isExpanded;
+  MaterialBox(
+      {Key? key, required this.child, this.padding, this.isExpanded = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +19,6 @@ class MaterialBox extends StatelessWidget {
               padding: const EdgeInsets.all(15.0),
               color: Colors.black12,
               child: child,
-            )
-        )
-    );
+            )));
   }
 }

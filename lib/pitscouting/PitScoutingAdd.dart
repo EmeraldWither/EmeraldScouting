@@ -1,6 +1,9 @@
 import 'package:camera/camera.dart';
+import 'package:emeraldscouting/RadioButton.dart';
 import 'package:flutter/material.dart';
 
+import '../CheckboxButton.dart';
+import '../scouting/material_box.dart';
 import '../uploader.dart';
 
 class PitScoutingAdd extends StatefulWidget {
@@ -12,15 +15,34 @@ class PitScoutingAdd extends StatefulWidget {
 
 class _PreScoutingState extends State<PitScoutingAdd> {
   final _teamNumberKey = GlobalKey<FormState>();
+  final _cycleTimeKey = GlobalKey<FormState>();
+
   int _teamNum = -1;
   int _stage = 0;
   late CameraController _controller;
-
   late List<CameraDescription> _cameras;
-
   final Map<String, XFile> _confirmedImages = {};
-
   String _selectedType = 'Intake';
+
+
+  //PIT SCOUTING QUESTIONS
+  int _cargoHold = 1;
+
+  //0 - Low
+  //1 - High
+  final _hubs = [false, true];
+  String? _driveType;
+  double _cycleTime = 0;
+  //0 - Low
+  //1 - Mid
+  //2 - High
+  //3 - Traversal
+  final _rungs = [false, false, false, false];
+  //0 - Limelight with Aim Assist
+  //1 - Dual Intake
+  //2 - Autonomous
+  final _features = [false, false, false];
+
 
   @override
   void initState() {
@@ -64,6 +86,7 @@ class _PreScoutingState extends State<PitScoutingAdd> {
     });
   }
 
+  //Widgets for the Staeges of the Pit Scouting
   Widget getStage1() {
     return Scaffold(
         appBar: AppBar(
@@ -215,11 +238,384 @@ class _PreScoutingState extends State<PitScoutingAdd> {
           ),
         ));
   }
+
   Widget getStage3() {
     return Scaffold(
-    );
+        appBar: AppBar(
+          title: const Text("Scouting Questions"),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            //TODO add on pressed
+          },
+          heroTag: const Key("scouting_next"),
+          child: const Icon(Icons.cloud_upload),
+        ),
+        //Use a gesture detector to allow clicking off of the text field input
+        body: GestureDetector(
+          onTap: () {
+            // call this method here to hide soft keyboard
+            FocusScope.of(context).requestFocus(FocusNode());
+          },
+          child: Center(
+            child: ListView(
+              children: [
+                //Drive Train Type
+                MaterialBox(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          const Text(
+                            "Drive Train Type",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 24),
+                          ),
+                          //add a true and false button for the user
+                          DropdownButton(
+                            hint: const Text("Select Drive Type",
+                                style: TextStyle(fontSize: 14)),
+                            items: const [
+                              DropdownMenuItem<String>(
+                                  value: "Tank Drive (KOP)",
+                                  child: Text("Tank Drive (KOP)")),
+                              DropdownMenuItem<String>(
+                                  value: "Tank Drive", child: Text("Tank Drive")),
+                              DropdownMenuItem<String>(
+                                  value: "Mecanum", child: Text("Mecanum")),
+                              DropdownMenuItem<String>(
+                                  value: "West Coast Drive",
+                                  child: Text("West Coast Drive")),
+                              DropdownMenuItem<String>(
+                                  value: "Swerve Drive",
+                                  child: Text("Swerve Drive")),
+                            ],
+                            isExpanded: false,
+                            onChanged: (value) {
+                              setState(() {
+                                _driveType = value as String;
+                              });
+                            },
+                            value: _driveType,
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                //How much cargo can the robot hold (pain and suffering)
+                MaterialBox(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints.tightForFinite(
+                            width: 300, height: 50),
+                        child: const Text(
+                          "How much cargo can the ROBOT hold at a time?",
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                          style: TextStyle(fontSize: 24),
+                        ),
+                      ),
+                      //Radial Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          //0 Cargo
+                          RadioButton(
+                              radio: Radio(
+                                value: 0,
+                                groupValue: _cargoHold,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _cargoHold = value as int;
+                                  });
+                                },
+                              ),
+                              widget: const Text("0",
+                                  style: TextStyle(fontSize: 16))),
+                          const SizedBox(width: 20),
+                          //1 Cargo
+                          RadioButton(
+                              radio: Radio(
+                                value: 1,
+                                groupValue: _cargoHold,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _cargoHold = value as int;
+                                  });
+                                },
+                              ),
+                              widget: const Text("1",
+                                  style: TextStyle(fontSize: 16))),
+                          const SizedBox(width: 20),
+                          //2 Cargo
+                          RadioButton(
+                              radio: Radio(
+                                value: 2,
+                                groupValue: _cargoHold,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _cargoHold = value as int;
+                                  });
+                                },
+                              ),
+                              widget: const Text("2",
+                                  style: TextStyle(fontSize: 16))),
+                          const SizedBox(width: 20),
+                          //2 Cargo
+                          RadioButton(
+                              radio: Radio(
+                                value: 3,
+                                groupValue: _cargoHold,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _cargoHold = value as int;
+                                  });
+                                },
+                              ),
+                              widget:
+                                  const Text("3", style: TextStyle(fontSize: 16)))
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                //Where can the robot shoot to
+                MaterialBox(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints.tightForFinite(
+                            width: 300, height: 50),
+                        child: const Text(
+                          "Which HUB can the ROBOT score on?",
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                          style: TextStyle(fontSize: 24),
+                        ),
+                      ),
+                      //Radial Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          //Low Cargo
+                          CheckboxButton(
+                              checkbox: Checkbox(
+                                  value: _hubs[0],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _hubs[0] = value!;
+                                    });
+                                  }),
+                              widget: const Text("Low Hub")),
+                          CheckboxButton(
+                              checkbox: Checkbox(
+                                  value: _hubs[1],
+                                  onChanged: (value) {
+                                    print("got changed");
+                                    setState(() {
+                                      _hubs[1] = value!;
+                                    });
+                                  }),
+                              widget: const Text("High Hub"))
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                //What is the average cycle time for a robot
+                MaterialBox(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints.tightForFinite(
+                            width: 300, height: 50),
+                        child: const Text(
+                          "What is the average cycle time for the ROBOT?",
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                          style: TextStyle(fontSize: 24),
+                        ),
+                      ),
+                      //Text Field with questions
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          //input field
+                          Form(
+                            key: _cycleTimeKey,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 120,
+                                  child: TextFormField(
+                                    decoration: const InputDecoration(
+                                      labelText: "seconds",
+                                      alignLabelWithHint: true
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    autofocus: false,
+                                    onEditingComplete: () {
+                                      _cycleTimeKey.currentState?.validate();
+                                    },
+                                    onChanged: (value) {
+                                      if(value.isEmpty)  {
+                                        _cycleTime = 0;
+                                      } else {
+                                        _cycleTime = double.parse(value);
+                                      }
+                                    },
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter a value!';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                //Where can the robot climb to
+                MaterialBox(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints.tightForFinite(
+                            width: 300, height: 50),
+                        child: const Text(
+                          "Which RUNGS can the ROBOT climb on?",
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                          style: TextStyle(fontSize: 24),
+                        ),
+                      ),
+                      //Radial Buttons
+                      Wrap(
+                        direction: Axis.vertical,
+                        verticalDirection: VerticalDirection.up,
+                        children: [
+                          //Low Rung
+                          CheckboxButton(
+                              checkbox: Checkbox(
+                                  value: _rungs[0],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _rungs[0] = value!;
+                                    });
+                                  }),
+                              widget: const Text("Low Rung")),
+                          //middle rung
+                          CheckboxButton(
+                              checkbox: Checkbox(
+                                  value: _rungs[1],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _rungs[1] = value!;
+                                    });
+                                  }),
+                              widget: const Text("Middle Rung")),
+                          //high rung
+                          CheckboxButton(
+                              checkbox: Checkbox(
+                                  value: _rungs[2],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _rungs[2] = value!;
+                                    });
+                                  }),
+                              widget: const Text("High Rung")),
+                          //traversal rung
+                          CheckboxButton(
+                              checkbox: Checkbox(
+                                  value: _rungs[3],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _rungs[3] = value!;
+                                    });
+                                  }),
+                              widget: const Text("Traversal Rung")),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+                //What features does the robot have
+                MaterialBox(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints.tightForFinite(
+                            width: 300, height: 50),
+                        child: const Text(
+                          "What features does the ROBOT have?",
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                          style: TextStyle(fontSize: 24),
+                        ),
+                      ),
+                      //Radial Buttons
+                      Wrap(
+                        direction: Axis.vertical,
+                        children: [
+                          //Low Rung
+                          CheckboxButton(
+                              checkbox: Checkbox(
+                                  value: _features[0],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _features[0] = value!;
+                                    });
+                                  }),
+                              widget: const Text("Limelight w/ Aim Assist/Auto Shoot")),
+                          //middle rung
+                          CheckboxButton(
+                              checkbox: Checkbox(
+                                  value: _features[1],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _features[1] = value!;
+                                    });
+                                  }),
+                              widget: const Text("Dual Intake")),
+                          //high rung
+                          CheckboxButton(
+                              checkbox: Checkbox(
+                                  value: _features[2],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _features[2] = value!;
+                                    });
+                                  }),
+                              widget: const Text("Autonomous")),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ));
   }
-
 
   Color getColor(String type) {
     if (_confirmedImages.keys.contains(type)) return Colors.green;
@@ -230,11 +626,14 @@ class _PreScoutingState extends State<PitScoutingAdd> {
     if (_confirmedImages.keys.length == 4) {
       return FloatingActionButton(
           onPressed: () {
-            for (var key in _confirmedImages.keys) {
-              ScoutingUploader.uploadPitImage(
-                  _teamNum, _confirmedImages[key]!, key);
-            }
-            Navigator.of(context).pop();
+            // for (var key in _confirmedImages.keys) {
+            //   ScoutingUploader.uploadPitImage(
+            //       _teamNum, _confirmedImages[key]!, key);
+            // }
+            // Navigator.of(context).pop();
+            setState(() {
+              _stage = 2;
+            });
           },
           child: const Icon(Icons.navigate_next));
     }
@@ -284,4 +683,3 @@ class _PreScoutingState extends State<PitScoutingAdd> {
     return getStage3();
   }
 }
-
