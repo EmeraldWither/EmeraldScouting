@@ -9,7 +9,7 @@ class EventDisplay extends StatefulWidget {
 }
 
 class _EventDisplayState extends State<EventDisplay> {
-  Event event = Event(name: "mount-olive");
+  Event event = Event(name: "warren-hills");
 
   void fetchData() async {
     await event.fetchEventInfo();

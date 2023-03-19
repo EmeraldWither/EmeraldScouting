@@ -24,26 +24,36 @@ class _PreScoutingState extends State<PitScoutingAdd> {
   late List<CameraDescription> _cameras;
   final Map<String, XFile> _confirmedImages = {};
   String _selectedType = 'Intake';
+  //scouting questions
 
-  //PIT SCOUTING QUESTIONS
-  int _cargoHold = 1;
 
-  //0 - Low
-  //1 - High
-  final _hubs = [false, false];
+  //0 - Cone
+  //1 - Cube
+  final _gamePieces = [false, false];
   String? _driveType;
-  double _cycleTime = 0;
 
-  //0 - Low
-  //1 - Mid
-  //2 - High
-  //3 - Traversal
-  final _rungs = [false, false, false, false];
+  //intake dropdown menu
+  String? _intakeTypeKey;
+  String _intakeType = "";
+  final TextEditingController _intakeTextController = TextEditingController();
 
-  //0 - Limelight with Aim Assist
-  //1 - Dual Intake
-  //2 - Autonomous
-  final _features = [false, false, false];
+  //0 - Hybrid Node
+  //1 - Mid Node
+  //2 - High Node
+  final _nodes = [false, false, false];
+
+  //0 - Charge Station Engage
+  //1 - Score Cube
+  //2 - Score Cone
+  //3 - Mobility
+  final _autoFeatures = [false, false, false, false];
+  String _autoSpecialFeature = "";
+  final TextEditingController _autoTextController = TextEditingController();
+
+  //notes
+  String _robotNotes = "";
+  final TextEditingController _notesTextController = TextEditingController();
+
 
   @override
   void initState() {
@@ -167,7 +177,7 @@ class _PreScoutingState extends State<PitScoutingAdd> {
                                   padding:
                                       const EdgeInsets.fromLTRB(25, 8, 25, 8)),
                               child: const Icon(Icons.camera_alt, size: 35)),
-                          const SizedBox(height: 5),
+                          const SizedBox(height: 15),
                         ],
                       )
                     ],
@@ -177,62 +187,31 @@ class _PreScoutingState extends State<PitScoutingAdd> {
               Text(_selectedType, style: const TextStyle(fontSize: 24)),
               const SizedBox(height: 15),
               //Options selection
-              Column(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   //Intake, Shooter, and Climber
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectedType = 'Intake';
-                            });
-                          },
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                  getColor("Intake"))),
-                          child: const Text("Intake")),
-                      ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectedType = 'Shooter';
-                            });
-                          },
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
-                                  getColor("Shooter"))),
-                          child: const Text("Shooter")),
-                      ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectedType = 'Climb';
-                            });
-                          },
-                          style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(getColor("Climb"))),
-                          child: const Text("Climb"))
-                    ],
-                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedType = 'Intake';
+                        });
+                      },
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                              getColor("Intake"))),
+                      child: const Text("Intake")),
                   //Intake, Shooter, and Climber
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectedType = 'Drive';
-                            });
-                          },
-                          style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(getColor("Drive"))),
-                          child: const Text("Drive")),
-                    ],
-                  )
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedType = 'Drive';
+                        });
+                      },
+                      style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(getColor("Drive"))),
+                      child: const Text("Drive"))
                 ],
               )
             ],
@@ -280,14 +259,10 @@ class _PreScoutingState extends State<PitScoutingAdd> {
                               textAlign: TextAlign.center,
                               style: TextStyle(fontSize: 24),
                             ),
-                            //add a true and false button for the user
                             DropdownButton(
                               hint: const Text("Select Drive Type",
                                   style: TextStyle(fontSize: 14)),
                               items: const [
-                                DropdownMenuItem<String>(
-                                    value: "Tank Drive (KOP)",
-                                    child: Text("Tank Drive (KOP)")),
                                 DropdownMenuItem<String>(
                                     value: "Tank Drive",
                                     child: Text("Tank Drive")),
@@ -295,7 +270,13 @@ class _PreScoutingState extends State<PitScoutingAdd> {
                                     value: "Mecanum", child: Text("Mecanum")),
                                 DropdownMenuItem<String>(
                                     value: "West Coast Drive",
-                                    child: Text("West Coast Drive")),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text("West Coast Drive"),
+                                        Text("East Coast Drive When??", style: TextStyle(fontSize: 6))
+                                      ],
+                                    )),
                                 DropdownMenuItem<String>(
                                     value: "Swerve Drive",
                                     child: Text("Swerve Drive")),
@@ -313,7 +294,8 @@ class _PreScoutingState extends State<PitScoutingAdd> {
                       ],
                     ),
                   ),
-                  //How much cargo can the robot hold (pain and suffering)
+
+                  //Where can the robot score to to
                   MaterialBox(
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
@@ -323,87 +305,7 @@ class _PreScoutingState extends State<PitScoutingAdd> {
                           constraints: const BoxConstraints.tightForFinite(
                               width: 300, height: 50),
                           child: const Text(
-                            "How much cargo can the ROBOT hold at a time?",
-                            textAlign: TextAlign.center,
-                            softWrap: true,
-                            style: TextStyle(fontSize: 24),
-                          ),
-                        ),
-                        //Radial Buttons
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            //0 Cargo
-                            RadioButton(
-                                radio: Radio(
-                                  value: 0,
-                                  groupValue: _cargoHold,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _cargoHold = value as int;
-                                    });
-                                  },
-                                ),
-                                widget: const Text("0",
-                                    style: TextStyle(fontSize: 16))),
-                            const SizedBox(width: 20),
-                            //1 Cargo
-                            RadioButton(
-                                radio: Radio(
-                                  value: 1,
-                                  groupValue: _cargoHold,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _cargoHold = value as int;
-                                    });
-                                  },
-                                ),
-                                widget: const Text("1",
-                                    style: TextStyle(fontSize: 16))),
-                            const SizedBox(width: 20),
-                            //2 Cargo
-                            RadioButton(
-                                radio: Radio(
-                                  value: 2,
-                                  groupValue: _cargoHold,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _cargoHold = value as int;
-                                    });
-                                  },
-                                ),
-                                widget: const Text("2",
-                                    style: TextStyle(fontSize: 16))),
-                            const SizedBox(width: 20),
-                            //2 Cargo
-                            RadioButton(
-                                radio: Radio(
-                                  value: 3,
-                                  groupValue: _cargoHold,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _cargoHold = value as int;
-                                    });
-                                  },
-                                ),
-                                widget: const Text("3",
-                                    style: TextStyle(fontSize: 16)))
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  //Where can the robot shoot to
-                  MaterialBox(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ConstrainedBox(
-                          constraints: const BoxConstraints.tightForFinite(
-                              width: 300, height: 50),
-                          child: const Text(
-                            "Which HUB can the ROBOT score on?",
+                            "Which GAME PIECES can the ROBOT score?",
                             textAlign: TextAlign.center,
                             softWrap: true,
                             style: TextStyle(fontSize: 24),
@@ -416,29 +318,28 @@ class _PreScoutingState extends State<PitScoutingAdd> {
                             //Low Cargo
                             CheckboxButton(
                                 checkbox: Checkbox(
-                                    value: _hubs[0],
+                                    value: _gamePieces[0],
                                     onChanged: (value) {
                                       setState(() {
-                                        _hubs[0] = value!;
+                                        _gamePieces[0] = value!;
                                       });
                                     }),
-                                widget: const Text("Low Hub")),
+                                widget: const Text("Cones", style: TextStyle(color: Colors.yellowAccent, fontWeight: FontWeight.bold),)),
                             CheckboxButton(
                                 checkbox: Checkbox(
-                                    value: _hubs[1],
+                                    value: _gamePieces[1],
                                     onChanged: (value) {
-                                      print("got changed");
                                       setState(() {
-                                        _hubs[1] = value!;
+                                        _gamePieces[1] = value!;
                                       });
                                     }),
-                                widget: const Text("High Hub"))
+                                widget: const Text("Cubes", style: TextStyle(color: Colors.purple, fontWeight: FontWeight.bold),))
                           ],
                         )
                       ],
                     ),
                   ),
-                  //What is the average cycle time for a robot
+                  //What kind of INTAKE does the robot have?
                   MaterialBox(
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
@@ -448,56 +349,57 @@ class _PreScoutingState extends State<PitScoutingAdd> {
                           constraints: const BoxConstraints.tightForFinite(
                               width: 300, height: 50),
                           child: const Text(
-                            "What is the average cycle time for the ROBOT?",
+                            "What kind of INTAKE does the ROBOT have?",
                             textAlign: TextAlign.center,
                             softWrap: true,
                             style: TextStyle(fontSize: 24),
                           ),
                         ),
                         //Text Field with questions
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            //input field
-                            Form(
-                              key: _cycleTimeKey,
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 120,
-                                    child: TextFormField(
-                                      decoration: const InputDecoration(
-                                          labelText: "seconds",
-                                          alignLabelWithHint: true),
-                                      keyboardType: TextInputType.number,
-                                      autofocus: false,
-                                      onEditingComplete: () {
-                                        _cycleTimeKey.currentState?.validate();
-                                      },
-                                      onChanged: (value) {
-                                        if (value.isEmpty) {
-                                          _cycleTime = 0;
-                                        } else {
-                                          _cycleTime = double.parse(value);
-                                        }
-                                      },
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter a value!';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                        DropdownButton(
+                          hint: const Text("Select Intake Type",
+                              style: TextStyle(fontSize: 14)),
+                          items: const [
+                            DropdownMenuItem<String>(
+                                value: "AndyMark Climber in a Box",
+                                child: Text("AndyMark Climber in a Box")),
+                            DropdownMenuItem<String>(
+                                value: "Elevator with Intake",
+                                child: Text("Elevator with Intake")),
+                            DropdownMenuItem<String>(
+                                value: "Big Arm in Center with a Grabber",
+                                child: Text("Big Arm in Center with a Grabber")),
+                            DropdownMenuItem<String>(
+                                value: "No Intake",
+                                child: Text("No Intake", style: TextStyle(color: Colors.red),)),
+                            DropdownMenuItem<String>(
+                                value: "Other",
+                                child: Text("Other (Please Specify)")),
                           ],
-                        )
+                          isExpanded: false,
+                          onChanged: (value) {
+                            setState(() {
+                              _intakeType = value!;
+                              _intakeTypeKey = value;
+                            });
+                          },
+                          value: _intakeTypeKey,
+                        ),
+                        if(_intakeTypeKey == "Other")
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(30, 5, 30, 5),
+                            child: TextField(
+                              textAlign: TextAlign.center,
+                              decoration: const InputDecoration(hintText: "Describe the ROBOT's intake"),
+                              controller: _intakeTextController,
+                                onChanged: (value) {
+                              _intakeType = value;
+                            }),
+                          )
                       ],
                     ),
                   ),
-                  //Where can the robot climb to
+                  //Where can the robot score to
                   MaterialBox(
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
@@ -507,7 +409,7 @@ class _PreScoutingState extends State<PitScoutingAdd> {
                           constraints: const BoxConstraints.tightForFinite(
                               width: 300, height: 50),
                           child: const Text(
-                            "Which RUNGS can the ROBOT climb on?",
+                            "Which NODES can the ROBOT score on?",
                             textAlign: TextAlign.center,
                             softWrap: true,
                             style: TextStyle(fontSize: 24),
@@ -518,52 +420,119 @@ class _PreScoutingState extends State<PitScoutingAdd> {
                           direction: Axis.vertical,
                           verticalDirection: VerticalDirection.up,
                           children: [
-                            //Low Rung
-                            CheckboxButton(
-                                checkbox: Checkbox(
-                                    value: _rungs[0],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _rungs[0] = value!;
-                                      });
-                                    }),
-                                widget: const Text("Low Rung")),
                             //middle rung
                             CheckboxButton(
                                 checkbox: Checkbox(
-                                    value: _rungs[1],
+                                    value: _nodes[0],
                                     onChanged: (value) {
                                       setState(() {
-                                        _rungs[1] = value!;
+                                        _nodes[0] = value!;
                                       });
                                     }),
-                                widget: const Text("Middle Rung")),
+                                widget: const Text("Hybrid Node")),
                             //high rung
                             CheckboxButton(
                                 checkbox: Checkbox(
-                                    value: _rungs[2],
+                                    value: _nodes[1],
                                     onChanged: (value) {
                                       setState(() {
-                                        _rungs[2] = value!;
+                                        _nodes[1] = value!;
                                       });
                                     }),
-                                widget: const Text("High Rung")),
+                                widget: const Text("Middle Node")),
                             //traversal rung
                             CheckboxButton(
                                 checkbox: Checkbox(
-                                    value: _rungs[3],
+                                    value: _nodes[2],
                                     onChanged: (value) {
                                       setState(() {
-                                        _rungs[3] = value!;
+                                        _nodes[2] = value!;
                                       });
                                     }),
-                                widget: const Text("Traversal Rung")),
+                                widget: const Text("High Node")),
                           ],
                         )
                       ],
                     ),
                   ),
-                  //What features does the robot have
+                  //What can the robot do during autonomous
+                  MaterialBox(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        ConstrainedBox(
+                          constraints: const BoxConstraints.tightForFinite(
+                              width: 300, height: 50),
+                          child: const Text(
+                            "What can the ROBOT do during AUTO?",
+                            textAlign: TextAlign.center,
+                            softWrap: true,
+                            style: TextStyle(fontSize: 24),
+                          ),
+                        ),
+                        //Radial Buttons
+                        Wrap(
+                          direction: Axis.vertical,
+                          verticalDirection: VerticalDirection.up,
+                          children: [
+                            CheckboxButton(
+                                checkbox: Checkbox(
+                                    value: _autoFeatures[0],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _autoFeatures[0] = value!;
+                                      });
+                                    }),
+                                widget: const Text(
+                                    "Engage with Charge Station")),
+                            //score cone
+                            CheckboxButton(
+                                checkbox: Checkbox(
+                                    value: _autoFeatures[1],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _autoFeatures[1] = value!;
+                                      });
+                                    }),
+                                widget: const Text("Score a Cone")),
+                            //score cube
+                            CheckboxButton(
+                                checkbox: Checkbox(
+                                    value: _autoFeatures[2],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _autoFeatures[2] = value!;
+                                      });
+                                    }),
+                                widget: const Text("Score a Cube")),
+                            CheckboxButton(
+                                checkbox: Checkbox(
+                                    value: _autoFeatures[3],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _autoFeatures[3] = value!;
+                                      });
+                                    }),
+                                widget: const Text("Mobility")),
+                          ],
+                        ),
+                        SizedBox(
+                          width: 300,
+                          child: TextField(
+                              textAlign: TextAlign.center,
+                              decoration: const InputDecoration(hintText: "Describe the ROBOT's AUTO"),
+                              controller: _autoTextController,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              onChanged: (value) {
+                                _autoSpecialFeature = value;
+                              }
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  //Extra notes on the robot
                   MaterialBox(
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
@@ -573,52 +542,22 @@ class _PreScoutingState extends State<PitScoutingAdd> {
                           constraints: const BoxConstraints.tightForFinite(
                               width: 300, height: 50),
                           child: const Text(
-                            "What features does the ROBOT have?",
+                            "Put some extra NOTES on the ROBOT",
                             textAlign: TextAlign.center,
                             softWrap: true,
                             style: TextStyle(fontSize: 24),
                           ),
                         ),
-                        //Radial Buttons
-                        Wrap(
-                          direction: Axis.vertical,
-                          children: [
-                            //Low Rung
-                            CheckboxButton(
-                                checkbox: Checkbox(
-                                    value: _features[0],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _features[0] = value!;
-                                      });
-                                    }),
-                                widget: const Text(
-                                    "Limelight w/ Aim Assist/Auto Shoot")),
-                            //middle rung
-                            CheckboxButton(
-                                checkbox: Checkbox(
-                                    value: _features[1],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _features[1] = value!;
-                                      });
-                                    }),
-                                widget: const Text("Dual Intake")),
-                            //high rung
-                            CheckboxButton(
-                                checkbox: Checkbox(
-                                    value: _features[2],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _features[2] = value!;
-                                      });
-                                    }),
-                                widget: const Text("Autonomous")),
-                          ],
+                        TextField(
+                          controller: _notesTextController,
+                          keyboardType: TextInputType.multiline,
+                          maxLines: null,
+                          onChanged: (value) => _robotNotes = value,
                         )
                       ],
                     ),
                   ),
+                  const SizedBox(height: 75,)
                 ],
               ),
             ),
@@ -632,14 +571,9 @@ class _PreScoutingState extends State<PitScoutingAdd> {
   }
 
   FloatingActionButton? getActionButton() {
-    if (_confirmedImages.keys.length == 4) {
+    if (_confirmedImages.keys.length == 2) {
       return FloatingActionButton(
           onPressed: () {
-            // for (var key in _confirmedImages.keys) {
-            //   ScoutingUploader.uploadPitImage(
-            //       _teamNum, _confirmedImages[key]!, key);
-            // }
-            // Navigator.of(context).pop();
             setState(() {
               _stage = 2;
             });
@@ -654,9 +588,7 @@ class _PreScoutingState extends State<PitScoutingAdd> {
       await ScoutingUploader.uploadPitImage(
           _teamNum, _confirmedImages[fileName]!, fileName);
     }
-    ScoutingUploader.uploadPitScouting(_teamNum, _cargoHold, _hubs, _driveType!,
-        _cycleTime, _rungs, _features);
-    print("finished!");
+    ScoutingUploader.uploadPitScouting(_teamNum, _gamePieces, _driveType!, _intakeType!, _nodes, _autoFeatures, _autoSpecialFeature!, _robotNotes!);
     pop();
   }
 
@@ -678,8 +610,8 @@ class _PreScoutingState extends State<PitScoutingAdd> {
             title: const Text("SCOUTING FAILED"),
           ),
           backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
-          body: Column(
-            children: const [
+          body: const Column(
+            children: [
               Icon(Icons.warning_amber_rounded, size: 300, color: Colors.white),
               Text("SEVERE ERROR",
                   style: TextStyle(
@@ -708,9 +640,9 @@ class _PreScoutingState extends State<PitScoutingAdd> {
         const Opacity(
             opacity: 0.8,
             child: ModalBarrier(dismissible: false, color: Colors.black)),
-        Center(child: Column(
+        const Center(child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             CircularProgressIndicator(),
           ],
         )),

@@ -20,7 +20,7 @@ class _PitScoutingTeamViewerState extends State<PitScoutingTeamViewer> {
     var dir =
         FirebaseStorage.instanceFor(bucket: "gs://robo-t-scouting.appspot.com")
             .ref()
-            .child("mount-olive")
+            .child("warren-hills")
             .child("$team");
     var images = await dir.listAll();
     for (var image in images.items) {
@@ -71,59 +71,33 @@ class _PitScoutingTeamViewerState extends State<PitScoutingTeamViewer> {
           thumbVisibility: true,
           thickness: 6,
           child: ListView(
-            children: [getFeaturesWidget(), getDriveWidget(), getIntakeWidget(),getShooterWidget(), getClimbWidget()],
+            children: [getAutoWidget(), getDriveWidget(), getIntakeWidget(), getRobotNotes()],
           ),
         ),
       ),
     );
   }
 
-  Widget getClimbWidget() {
+  Widget getAutoWidget() {
     return MaterialBox(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            const Text("Climb",
+            const Text("Autonomous",
                 style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: _images["Climb"]!,
-            ),
-            //Rungs climable to
+            if (_questions["autoFeatures"][0])
+              const Text("Charge Station Auto Balance", style: TextStyle(fontSize: 24)),
+            if (_questions["autoFeatures"][1])
+              const Text("Score Cube", style: TextStyle(fontSize: 24)),
+            if (_questions["autoFeatures"][2])
+              const Text("Score Cone", style: TextStyle(fontSize: 24)),
+            if (_questions["autoFeatures"][3])
+              const Text("Mobility", style: TextStyle(fontSize: 24)),
             const SizedBox(height: 20),
-            const Text("Can Climb To",
-                style: TextStyle(fontSize: 32,decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
-            if (_questions["rungs"][3])
-              const Text("Traversal", style: TextStyle(fontSize: 24)),
-            if (_questions["rungs"][2])
-              const Text("High", style: TextStyle(fontSize: 24)),
-            if (_questions["rungs"][1])
-              const Text("Mid", style: TextStyle(fontSize: 24)),
-            if (_questions["rungs"][0])
-              const Text("Low", style: TextStyle(fontSize: 24)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget getFeaturesWidget() {
-    return MaterialBox(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            const Text("Features",
-                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            if (_questions["features"][0])
-              const Text("Limelight", style: TextStyle(fontSize: 24)),
-            if (_questions["features"][1])
-              const Text("Dual Intake", style: TextStyle(fontSize: 24)),
-            if (_questions["features"][2])
-              const Text("Auto", style: TextStyle(fontSize: 24))
+            const Divider(thickness: 2),
+            Text(_questions["autoNotes"], style: const TextStyle(fontSize: 24))
           ],
         ),
       ),
@@ -147,14 +121,30 @@ class _PitScoutingTeamViewerState extends State<PitScoutingTeamViewer> {
             const Text("Drivetrain Type",
                 style: TextStyle(fontSize: 32,decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
             //What drivedrain type
-            Text("${_questions["driveType"]}",
+            Text("${_questions["drivetrainType"]}",
                 style: const TextStyle(fontSize: 24)),
           ],
         ),
       ),
     );
   }
-
+  Widget getRobotNotes(){
+    return MaterialBox(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            const Text("Robot Notes",
+                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+           //What drivedrain type
+            Text("${_questions["robotNotes"]}",
+                style: const TextStyle(fontSize: 24)),
+          ],
+        ),
+      ),
+    );
+  }
   Widget getIntakeWidget(){
     return MaterialBox(
       child: Padding(
@@ -169,44 +159,35 @@ class _PitScoutingTeamViewerState extends State<PitScoutingTeamViewer> {
               child: _images["Intake"]!,
             ),
             const SizedBox(height: 20),
-            const Text("Cargo Capacity",
-                style: TextStyle(fontSize: 32,decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
-            //What drivedrain type
-            Text("${_questions["cargoCapacity"]}",
-                style: const TextStyle(fontSize: 24)),
-          ],
-        ),
-      ),
-    );
 
-  }
+            //intake type
+            const Text("Intake Type",
+                style: TextStyle(fontSize: 32,decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
+            Text("${_questions["intakeType"]}", style: const TextStyle(fontSize: 24)),
 
-  Widget getShooterWidget(){
-    return MaterialBox(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            const Text("Shooter",
-                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: _images["Shooter"]!,
-            ),
             const SizedBox(height: 20),
-            const Text("Shooter Cycle Time",
+            //what game pieces
+            const Text("Game Pieces",
                 style: TextStyle(fontSize: 32,decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
-            //What drivedrain type
-            Text("${_questions["cycleTime"]} seconds",
-                style: const TextStyle(fontSize: 24)),
+            if(_questions["gamePieces"][0] == true)
+              const Text("Cone", style: TextStyle(color: Colors.yellowAccent, fontSize: 24, fontWeight: FontWeight.bold),),
+            if(_questions["gamePieces"][1] == true)
+              const Text("Cube", style: TextStyle(color: Colors.purple, fontSize: 24, fontWeight: FontWeight.bold),),
+            if(_questions["gamePieces"][1] == false && _questions["gamePieces"][0] == false)
+              const Text("None", style: TextStyle(color: Colors.red, fontSize: 24, fontWeight: FontWeight.bold),),
+
+
             const SizedBox(height: 20),
-            const Text("Can Shoot To",
+            const Text("Nodes",
                 style: TextStyle(fontSize: 32,decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
-            if (_questions["hubs"][1])
+            if(_questions["nodes"][0] == true)
+              const Text("Hybrid", style: TextStyle(fontSize: 24)),
+            if(_questions["nodes"][1] == true)
+              const Text("Mid", style: TextStyle(fontSize: 24)),
+            if(_questions["nodes"][2] == true)
               const Text("High", style: TextStyle(fontSize: 24)),
-            if (_questions["hubs"][0])
-              const Text("Low", style: TextStyle(fontSize: 24)),
+            if(_questions["nodes"][2] == false && _questions["nodes"][1] == false && _questions["nodes"][0] == false)
+              const Text("None", style: TextStyle(color: Colors.red, fontSize: 24, fontWeight: FontWeight.bold),),
           ],
         ),
       ),

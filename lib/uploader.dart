@@ -20,7 +20,7 @@ class ScoutingUploader {
     };
     FirebaseFirestore.instance
         .collection("matches")
-        .doc("mount-olive")
+        .doc("warren-hills")
         .collection("match-${info.matchNumber}")
         .doc("team${info.teamNum}")
         .set(data);
@@ -31,7 +31,7 @@ class ScoutingUploader {
     var dir = await getApplicationDocumentsDirectory();
     var file = await fs
         .directory(dir.uri)
-        .childDirectory("mount-olive")
+        .childDirectory("warren-hills")
         .childDirectory("match-${info.matchNumber}")
         .childFile("${info.teamNum}-info")
         .create(recursive: true);
@@ -41,7 +41,7 @@ class ScoutingUploader {
   static Future<ScoutingInfo> fetchData(int team, int matchNumber) async {
     final data = await FirebaseFirestore.instance
         .collection("matches")
-        .doc("mount-olive")
+        .doc("warren-hills")
         .collection("match-$matchNumber")
         .doc("team$team")
         .get();
@@ -60,7 +60,7 @@ class ScoutingUploader {
     var storage =
         FirebaseStorage.instanceFor(bucket: "gs://robo-t-scouting.appspot.com");
     var teamFolder =
-        storage.ref().child("mount-olive/").child("$team/").child("$type.png");
+        storage.ref().child("warren-hills/").child("$team/").child("$type.png");
     var uploadTask = await teamFolder.putFile(file, SettableMetadata(contentType: "image/png"));
     await teamFolder.getDownloadURL();
   }
@@ -68,7 +68,7 @@ class ScoutingUploader {
   static void ensureMatchNumbers(int matchNum) async {
     var doc = await FirebaseFirestore.instance
         .collection("matches")
-        .doc("mount-olive")
+        .doc("warren-hills")
         .get();
     List<dynamic> arr = [];
     if (doc.data() != null && doc.data()!["matches"] != null) {
@@ -77,46 +77,48 @@ class ScoutingUploader {
     arr.add(matchNum);
     arr = arr.toSet().toList();
     final Map<String, dynamic> data = {
-      "event-id": "mount-olive",
+      "event-id": "warren-hills",
       "matches": arr
     };
     FirebaseFirestore.instance
         .collection("matches")
-        .doc("mount-olive")
+        .doc("warren-hills")
         .set(data);
-  }
-
-  static void uploadPitScouting(
-      int teamNum,
-      int cargoCapacity,
-      List<bool> hubs,
-      String driveType,
-      double cycleTime,
-      List<bool> rungs,
-      List<bool> features) {
-    var doc = FirebaseFirestore.instance
-        .collection("pits")
-        .doc("mount-olive")
-        .collection("questions")
-        .doc("$teamNum");
-    var data = {
-      "cargoCapacity": cargoCapacity,
-      "hubs": hubs,
-      "driveType": driveType,
-      "cycleTime": cycleTime,
-      "rungs": rungs,
-      "features": features
-    };
-    doc.set(data);
   }
 
   static Future<Map<String, dynamic>> getPitQuestions(int teamNum) async {
     var doc = FirebaseFirestore.instance
         .collection("pits")
-        .doc("mount-olive")
+        .doc("warren-hills")
         .collection("questions")
         .doc("$teamNum");
     var docData = await doc.get();
     return docData.data()!;
+  }
+
+  static void uploadPitScouting(
+      int teamNum,
+      List<bool> gamePieces,
+      String driveType,
+      String intakeType,
+      List<bool> nodes,
+      List<bool> autoFeatures,
+      String autoNotes,
+      String robotNotes) {
+    var doc = FirebaseFirestore.instance
+        .collection("pits")
+        .doc("warren-hills")
+        .collection("questions")
+        .doc("$teamNum");
+    var data = {
+      "gamePieces": gamePieces,
+      "drivetrainType": driveType,
+      "intakeType": intakeType,
+      "nodes": nodes,
+      "autoFeatures": autoFeatures,
+      "autoNotes": autoNotes,
+      "robotNotes": robotNotes,
+    };
+    doc.set(data);
   }
 }

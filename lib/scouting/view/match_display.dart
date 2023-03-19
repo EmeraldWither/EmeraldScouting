@@ -20,7 +20,7 @@ class _MatchDisplayState extends State<MatchDisplay> {
   void fetchData(int matchNum) async {
     var documents = await FirebaseFirestore.instance
         .collection("matches")
-        .doc("mount-olive")
+        .doc("warren-hills")
         .collection("match-$matchNum")
         .get();
     for (var element in documents.docs) {

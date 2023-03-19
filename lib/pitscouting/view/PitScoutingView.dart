@@ -15,7 +15,7 @@ class _PitScoutingViewerState extends State<PitScoutingViewer> {
   void fetchData() async {
     var storage = await FirebaseStorage.instanceFor(
         bucket: "gs://robo-t-scouting.appspot.com");
-    var dir = await storage.ref().child("mount-olive").listAll();
+    var dir = await storage.ref().child("warren-hills").listAll();
     for (var value in dir.prefixes) {
       String team = value.name.split("/").last;
       teams.add(int.parse(team));
